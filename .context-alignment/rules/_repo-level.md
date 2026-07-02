@@ -59,8 +59,6 @@ Pay attention to instructions in .context-alignment/alignment-global.md and rule
 
 ================================================================================
 
-- `[[! ... !]]` - User comments preserved across re-renders (editable)
-
 `/.context-alignment/CLAUDE.md (depth: 2)`
 <rules>
 ## System Architecture
