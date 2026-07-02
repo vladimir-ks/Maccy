@@ -28,6 +28,10 @@ Pay attention to instructions in .context-alignment/alignment-global.md and role
 [Add section-specific rules here]
 </section-alignment>
 
+<role>
+TEST_PROBE_CONTENT
+</role>
+
 ======
 ## Directory Structure (Level 1 only)
 ```
