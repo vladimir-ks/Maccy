@@ -1,0 +1,473 @@
+#!/bin/sh
+# claude - Per-repository AI agent for CLAUDE.md management
+# Installed by: align init
+# Purpose: Intelligent repository analysis and selective CLAUDE.md generation
+
+# Find bash 4.0+ (same pattern as align entry point)
+find_bash4() {
+  for bash_candidate in \
+    "/opt/homebrew/bin/bash" \
+    "/usr/local/bin/bash" \
+    "/usr/bin/bash" \
+    "/bin/bash"; do
+    [ -x "$bash_candidate" ] || continue
+    version=$("$bash_candidate" -c 'echo ${BASH_VERSINFO[0]}' 2>/dev/null || echo "0")
+    if [ "$version" -ge 4 ] 2>/dev/null; then
+      echo "$bash_candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+BASH4=$(find_bash4) || {
+  echo "ERROR: Bash 4.0+ required for claude command" >&2
+  echo "Install: brew install bash (macOS)" >&2
+  exit 1
+}
+
+# Re-execute with bash 4+ if needed
+if [ -z "${CLAUDE_BASH4_EXEC:-}" ]; then
+  export CLAUDE_BASH4_EXEC=1
+  exec "$BASH4" "$0" "$@"
+fi
+
+# Now we're in bash 4+
+set -euo pipefail
+
+# Resolve paths
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CONTEXT_DIR="$REPO_ROOT/.context-alignment"
+ALIGN_HOME="${ALIGN_HOME:-$HOME/.aigile-context-alignment}"
+
+# Source common utilities
+if [[ -f "$ALIGN_HOME/lib/common.sh" ]]; then
+  source "$ALIGN_HOME/lib/common.sh"
+elif [[ -f "$ALIGN_HOME/scripts/lib/common.sh" ]]; then
+  source "$ALIGN_HOME/scripts/lib/common.sh"
+else
+  echo "ERROR: Cannot find common.sh library" >&2
+  exit 1
+fi
+
+# Show usage
+show_usage() {
+  cat <<EOF
+claude - AI agent for repository context management
+
+Usage: claude <command> [options]
+
+Commands:
+  setup        Analyze repository and suggest CLAUDE.md locations
+  scan [dir]   Scan specific directory or all configured scopes
+  add <dir>    Add CLAUDE.md to specific directory
+  list         List all directories with CLAUDE.md files
+  sync         Sync central registry with CLAUDE.md files
+
+Options:
+  --help       Show this help message
+  --version    Show version information
+
+Examples:
+  claude setup                 # Analyze repo and suggest structure
+  claude scan                  # Scan all configured scopes
+  claude scan apps/pwa         # Scan specific directory
+  claude add packages/shared   # Add CLAUDE.md to directory
+  claude list                  # Show all CLAUDE.md locations
+
+This is a per-repository command installed by 'align init'.
+EOF
+  exit 0
+}
+
+# Analyze directory structure
+analyze_structure() {
+  log_info "Analyzing repository structure..."
+
+  local total_dirs=0
+  local total_files=0
+  local claude_md_dirs=()
+  local potential_dirs=()
+
+  # Count directories and files
+  while IFS= read -r dir; do
+    total_dirs=$((total_dirs + 1))
+
+    # Check if has CLAUDE.md
+    if [[ -f "$dir/CLAUDE.md" ]]; then
+      claude_md_dirs+=("$dir")
+    fi
+
+    # Check if looks like a significant module
+    local file_count=$(find "$dir" -maxdepth 1 -type f | wc -l)
+    if [[ $file_count -gt 3 ]]; then
+      # Has enough files to be significant
+      potential_dirs+=("$dir")
+    fi
+  done < <(find "$REPO_ROOT" -type d -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.context-alignment/*" 2>/dev/null)
+
+  total_files=$(find "$REPO_ROOT" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" 2>/dev/null | wc -l)
+
+  echo ""
+  log_info "Repository Statistics:"
+  echo "  • Directories: $total_dirs"
+  echo "  • Files: $total_files"
+  echo "  • Existing CLAUDE.md: ${#claude_md_dirs[@]}"
+  echo ""
+
+  # Return results
+  echo "claude_md_count=${#claude_md_dirs[@]}"
+  echo "potential_count=${#potential_dirs[@]}"
+}
+
+# Setup command - analyze and suggest structure
+cmd_setup() {
+  local auto_approve=false
+
+  # Parse options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --yes|-y)
+        auto_approve=true
+        shift
+        ;;
+      --help|-h)
+        cat <<EOF
+claude setup - Analyze repository and suggest CLAUDE.md structure
+
+Usage: claude setup [options]
+
+Options:
+  --yes, -y    Auto-approve all suggestions
+  --help       Show this help
+
+This command:
+1. Analyzes directory structure
+2. Finds existing CLAUDE.md files
+3. Suggests additional locations
+4. Updates config.yaml with discovered scopes
+EOF
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: $1" >&2
+        exit 1
+        ;;
+    esac
+  done
+
+  echo ""
+  echo "╔════════════════════════════════════════════════════════════════╗"
+  echo "║           Claude Repository Analysis                           ║"
+  echo "╚════════════════════════════════════════════════════════════════╝"
+  echo ""
+
+  # Run analysis
+  local analysis_output
+  analysis_output=$(analyze_structure)
+
+  # Find all directories with CLAUDE.md
+  log_info "Discovering CLAUDE.md files..."
+  local discovered_dirs=()
+
+  while IFS= read -r dir; do
+    [[ -z "$dir" ]] && continue
+    # Convert to relative path from repo root
+    local rel_dir="${dir#$REPO_ROOT/}"
+    [[ "$rel_dir" == "$REPO_ROOT" ]] && rel_dir="_repo-level"
+    discovered_dirs+=("$rel_dir")
+  done < <(find "$REPO_ROOT" -name "CLAUDE.md" -type f -not -path "*/.context-alignment/*" -not -path "*/node_modules/*" -not -path "*/.git/*" -exec dirname {} \; 2>/dev/null | sort -u)
+
+  if [[ ${#discovered_dirs[@]} -eq 0 ]]; then
+    log_warning "No CLAUDE.md files found in repository"
+    echo ""
+    log_info "Suggestion: Create CLAUDE.md files in key directories first"
+    echo "  Example: touch apps/pwa/CLAUDE.md"
+    echo ""
+    log_info "Then run 'claude setup' again to configure them"
+    return 0
+  fi
+
+  echo ""
+  echo "Found ${#discovered_dirs[@]} directories with CLAUDE.md files:"
+  echo ""
+
+  for dir in "${discovered_dirs[@]}"; do
+    # Detect directory type
+    local dir_type="module"
+    [[ -f "$REPO_ROOT/$dir/package.json" ]] && dir_type="package"
+    [[ -f "$REPO_ROOT/$dir/Dockerfile" ]] && dir_type="container"
+    [[ "$dir" == "_repo-level" ]] && dir_type="root"
+
+    printf "  ✓ %-30s [%s]\n" "$dir/" "$dir_type"
+  done
+
+  echo ""
+
+  # Ask for approval
+  if [[ "$auto_approve" == "false" ]]; then
+    read -p "Add these directories to config.yaml? [Y/n] " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]] && [[ -n $REPLY ]]; then
+      log_info "Setup cancelled"
+      return 0
+    fi
+  fi
+
+  # Update config.yaml
+  log_info "Updating config.yaml..."
+
+  # Read current scopes
+  local config_file="$CONTEXT_DIR/config.yaml"
+  local current_scopes=()
+
+  if [[ -f "$config_file" ]]; then
+    # Extract current scopes (simple grep)
+    while IFS= read -r line; do
+      if [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(.+)$ ]]; then
+        local scope="${BASH_REMATCH[1]}"
+        current_scopes+=("$scope")
+      fi
+    done < <(sed -n '/^scopes:/,/^[a-z]/p' "$config_file" | grep -E '^[[:space:]]*-')
+  fi
+
+  # Add new scopes
+  local added_count=0
+  for dir in "${discovered_dirs[@]}"; do
+    # Check if already in scopes
+    local exists=false
+    for scope in "${current_scopes[@]}"; do
+      if [[ "$scope" == "$dir" ]]; then
+        exists=true
+        break
+      fi
+    done
+
+    if [[ "$exists" == "false" ]]; then
+      # Add to scopes section
+      sed -i.bak "/^scopes:/a\\
+  - $dir
+" "$config_file"
+      added_count=$((added_count + 1))
+      log_success "Added scope: $dir"
+    fi
+  done
+
+  if [[ $added_count -eq 0 ]]; then
+    log_info "All directories already configured"
+  else
+    log_success "Added $added_count new scopes to config.yaml"
+  fi
+
+  echo ""
+  log_info "Setup complete!"
+  echo ""
+  log_info "Next steps:"
+  echo "  1. Review config: cat .context-alignment/config.yaml"
+  echo "  2. Scan content: claude scan"
+  echo "  3. Push to CLAUDE.md: align push"
+}
+
+# Scan command - selective scanning
+cmd_scan() {
+  local target_dir=""
+
+  # Parse options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help|-h)
+        cat <<EOF
+claude scan - Scan specific directory or all configured scopes
+
+Usage: claude scan [directory] [options]
+
+Arguments:
+  directory    Optional: specific directory to scan (relative to repo root)
+
+Options:
+  --help       Show this help
+
+Examples:
+  claude scan                 # Scan all configured scopes
+  claude scan apps/pwa        # Scan only apps/pwa directory
+  claude scan packages        # Scan all packages
+
+This extracts CLAUDE.md content to the central registry.
+EOF
+        exit 0
+        ;;
+      *)
+        target_dir="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -n "$target_dir" ]]; then
+    log_info "Scanning directory: $target_dir"
+
+    # Verify directory exists
+    if [[ ! -d "$REPO_ROOT/$target_dir" ]]; then
+      log_error "Directory not found: $target_dir"
+      exit 1
+    fi
+
+    # Call align scan with specific scope
+    "$ALIGN_HOME/bin/align-scan" --scope "$target_dir" "$@"
+  else
+    log_info "Scanning all configured scopes"
+    "$ALIGN_HOME/bin/align-scan" "$@"
+  fi
+}
+
+# List command - show all CLAUDE.md locations
+cmd_list() {
+  log_info "Directories with CLAUDE.md files:"
+  echo ""
+
+  local count=0
+  while IFS= read -r file; do
+    local dir=$(dirname "$file")
+    local rel_dir="${dir#$REPO_ROOT/}"
+    [[ "$rel_dir" == "$REPO_ROOT" ]] && rel_dir="_repo-level"
+
+    count=$((count + 1))
+    printf "  %2d. %s\n" "$count" "$rel_dir"
+  done < <(find "$REPO_ROOT" -name "CLAUDE.md" -type f -not -path "*/.context-alignment/*" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null | sort)
+
+  echo ""
+  if [[ $count -eq 0 ]]; then
+    log_warning "No CLAUDE.md files found"
+    echo ""
+    log_info "Create CLAUDE.md files in key directories, then run:"
+    echo "  claude setup"
+  else
+    log_info "Total: $count directories"
+  fi
+}
+
+# Add command - add CLAUDE.md to directory
+cmd_add() {
+  local target_dir=""
+
+  if [[ $# -eq 0 ]]; then
+    log_error "Directory required"
+    echo "Usage: claude add <directory>"
+    exit 1
+  fi
+
+  target_dir="$1"
+  shift
+
+  # Verify directory exists
+  if [[ ! -d "$REPO_ROOT/$target_dir" ]]; then
+    log_error "Directory not found: $target_dir"
+    exit 1
+  fi
+
+  local claude_file="$REPO_ROOT/$target_dir/CLAUDE.md"
+
+  if [[ -f "$claude_file" ]]; then
+    log_warning "CLAUDE.md already exists: $target_dir"
+    read -p "Overwrite? [y/N] " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      log_info "Cancelled"
+      return 0
+    fi
+  fi
+
+  log_info "Creating CLAUDE.md in: $target_dir"
+
+  # Generate basic CLAUDE.md template
+  cat > "$claude_file" <<'EOF'
+# Module Context
+
+<role>
+Act as specialist for this module.
+</role>
+
+<technology>
+| Layer | Technology | Purpose | Version |
+|-------|------------|---------|---------|
+|       |            |         |         |
+</technology>
+
+<references>
+| File | Read When | Summary |
+|------|-----------|---------|
+|      |           |         |
+</references>
+
+<rules>
+1. Follow repository-wide standards
+2. Maintain consistency with parent context
+</rules>
+EOF
+
+  log_success "Created: $claude_file"
+  echo ""
+  log_info "Next steps:"
+  echo "  1. Edit the file: code $target_dir/CLAUDE.md"
+  echo "  2. Add to config: claude setup"
+  echo "  3. Scan content: claude scan $target_dir"
+}
+
+# Sync command - two-way sync
+cmd_sync() {
+  log_info "Syncing central registry with CLAUDE.md files..."
+
+  # First scan (pull from CLAUDE.md to registry)
+  log_info "Step 1/2: Scanning (pull from files)"
+  "$ALIGN_HOME/bin/align-scan" "$@"
+
+  echo ""
+
+  # Then push (push from registry to CLAUDE.md)
+  log_info "Step 2/2: Pushing (push to files)"
+  "$ALIGN_HOME/bin/align-push" "$@"
+
+  echo ""
+  log_success "Sync complete"
+}
+
+# Main router
+main() {
+  # Handle no arguments or --help
+  if [[ $# -eq 0 ]] || [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+    show_usage
+  fi
+
+  local cmd="$1"
+  shift
+
+  case "$cmd" in
+    setup)
+      cmd_setup "$@"
+      ;;
+    scan)
+      cmd_scan "$@"
+      ;;
+    add)
+      cmd_add "$@"
+      ;;
+    list)
+      cmd_list "$@"
+      ;;
+    sync)
+      cmd_sync "$@"
+      ;;
+    --version|-v)
+      echo "claude version 1.0.0 (AIgile Context Alignment)"
+      exit 0
+      ;;
+    *)
+      echo "Error: Unknown command '$cmd'" >&2
+      echo ""
+      echo "Run 'claude --help' for usage" >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
