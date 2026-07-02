@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-02T16:42:05+03:00",
+  "operation": "scan",
+  "section": "all",
+  "duration_ms": 46603,
+  "files_processed": 8,
+  "cache_hits": 0,
+  "cache_misses": 0
+}
