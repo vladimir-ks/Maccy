@@ -41,6 +41,12 @@ Pay attention to instructions in .context-alignment/alignment-global.md and depe
 ├── MaccyUITests/
 ```
 ================================================================================
+`/CLAUDE.md (depth: 0)`
+<dependencies>
+SPM only: Defaults, KeyboardShortcuts, Sauce, Settings, Sparkle, SwiftHEXColors, fuse-swift, swift-log. Resolve via `xcodebuild -resolvePackageDependencies` or Xcode "Resolve Package Versions".
+</dependencies>
+
+================================================================================
 `~/.claude/CLAUDE.md (global)`
 <dependencies>
 [NO FILE]

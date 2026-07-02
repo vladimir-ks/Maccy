@@ -41,6 +41,23 @@ Pay attention to instructions in .context-alignment/alignment-global.md and tech
 ├── MaccyUITests/
 ```
 ================================================================================
+`/CLAUDE.md (depth: 0)`
+<allowed_tech>
+| Layer | Technology | Purpose | Version |
+|---|---|---|---|
+| Language | Swift | App language | 5 |
+| UI | AppKit + SwiftUI | Hybrid UI | - |
+| Target | macOS | Min OS | 14 (Sonoma)+ |
+| Build | Xcode/xcodebuild | Only build path; SPM deps, no CocoaPods/Carthage | - |
+| Hotkeys | KeyboardShortcuts (SPM) | Global hotkey registration | - |
+| Shortcuts.app | AppIntents | `Get`/`Select`/`Delete`/`Clear` history intents | - |
+| Persistence | Core Data | `History.xcdatamodeld`, `Storage.xcdatamodeld` | - |
+| Settings | Defaults (SPM) | UserDefaults wrapper | - |
+| Updates | Sparkle | Auto-update | - |
+| Sandbox | App Sandbox | On; no network entitlement by default | - |
+</allowed_tech>
+
+================================================================================
 `~/.claude/CLAUDE.md (global)`
 <allowed_tech>
 [NO FILE]

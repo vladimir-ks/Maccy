@@ -41,6 +41,13 @@ Pay attention to instructions in .context-alignment/alignment-global.md and fron
 ├── MaccyUITests/
 ```
 ================================================================================
+`/CLAUDE.md (depth: 0)`
+<front_matter>
+title: "Maccy (fork)"
+tldr: "Custom fork of p0deje/Maccy — clipboard manager, base for AI-processing features."
+</front_matter>
+
+================================================================================
 `~/.claude/CLAUDE.md (global)`
 <front_matter>
 [NO FILE]

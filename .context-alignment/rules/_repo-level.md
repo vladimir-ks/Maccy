@@ -41,6 +41,17 @@ Pay attention to instructions in .context-alignment/alignment-global.md and rule
 ├── MaccyUITests/
 ```
 ================================================================================
+`/CLAUDE.md (depth: 0)`
+<rules>
+1. Remotes: `origin` = own fork (vladimir-ks/Maccy), `upstream` = p0deje/Maccy.
+2. Branches: `master` tracks `upstream/master` — never commit here. `mine` = integration branch for all custom work, tracks `origin/mine`. Feature work branches off `mine`.
+3. Sync upstream: `git fetch upstream && git checkout master && git merge --ff-only upstream/master && git push origin master`, then rebase/merge `master` into `mine`.
+4. Isolate custom code: prefer NEW files (e.g. `Maccy/AI/*.swift`) over editing upstream files. Where an upstream file must change (hotkey registry, footer button, entitlements), keep the diff minimal and mark it `// CUSTOM:` — keeps rebase conflicts small and easy to resolve.
+5. Never edit this repo's CLAUDE.md directly — edit `.context-alignment/{section}/_repo-level.md`, then `align push`. Root-scope entries need a manually-added `` `/CLAUDE.md (depth: 0)` `` header block (scan omits it on repos with no prior CLAUDE.md — known tool quirk).
+6. In-app network calls (e.g. calling an AI API directly from Swift) require adding `com.apple.security.network.client` to `Maccy/Maccy.entitlements` first — App Sandbox blocks it by default.
+</rules>
+
+================================================================================
 `~/.claude/CLAUDE.md (global)`
 <rules>
 [NO FILE]

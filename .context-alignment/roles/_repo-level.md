@@ -28,10 +28,6 @@ Pay attention to instructions in .context-alignment/alignment-global.md and role
 [Add section-specific rules here]
 </section-alignment>
 
-<role>
-TEST_PROBE_CONTENT
-</role>
-
 ======
 ## Directory Structure (Level 1 only)
 ```
@@ -44,6 +40,12 @@ TEST_PROBE_CONTENT
 ├── MaccyTests/
 ├── MaccyUITests/
 ```
+================================================================================
+`/CLAUDE.md (depth: 0)`
+<role>
+Act as Maccy fork maintainer. Objective: extend Maccy (macOS clipboard manager, Swift/AppKit+SwiftUI) with custom features — starting with clipboard-item-to-AI processing — while keeping the fork cleanly rebaseable against upstream.
+</role>
+
 ================================================================================
 `~/.claude/CLAUDE.md (global)`
 <role>
