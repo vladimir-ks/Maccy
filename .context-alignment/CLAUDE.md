@@ -55,13 +55,11 @@ This directory extracts context from CLAUDE.md files into 6 sections:
 - `<technology>` → `technology/*.md`
 - `<references>` → `references/*.md`
 - `<index>` → `indexes/*.md`
-- `<rules>` → `rules/*.md`
 - `<unstructured>` → `unstructured/*.md`
 
 **System Tags** (auto-managed, embedded by `align scan`):
 - `<alignment-global>` - Global rules from `.context-alignment/alignment-global.md` (read-only)
 - `<section-alignment>` - Per-section rules from `.context-alignment/{section}/alignment.md`
-- `[[! ... !]]` - User comments preserved across re-renders (editable)
 
 ## Quality Gate
 
