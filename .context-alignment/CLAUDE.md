@@ -1,3 +1,8 @@
+---
+title: "AIgile Context Alignment"
+tldr: "*See:"
+---
+
 # AIgile Context Alignment
 
 <role>
@@ -42,16 +47,6 @@ This directory extracts context from CLAUDE.md files into 6 sections:
 
 ## Workflow
 
-```bash
-# Extract context from all CLAUDE.md files
-align scan
-
-# View results
-ls .context-alignment/{roles,technology,references,indexes,rules,unstructured}/
-
-# Push changes back to CLAUDE.md files
-align push
-```
 
 ## Tag Reference
 
@@ -78,6 +73,4 @@ Before committing any section file:
 - [ ] Empty tags acceptable if nothing to add
 </rules>
 
-**See:
-
-`@_index.md`
+@_index.md
