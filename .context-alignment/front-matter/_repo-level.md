@@ -1,10 +1,10 @@
 ---
 section: front-matter
 scope: _repo-level
-generated: 2026-07-02T16:41:19+03:00
+generated: 2026-07-02T16:54:28+03:00
 scanned_from: /Users/vmks/_IT_Projects/_dev_tools/Maccy
 branch: context-align/260702
-commit: 37726d0
+commit: 7c6d78b
 ---
 
 ## Context Alignment
@@ -32,7 +32,7 @@ Pay attention to instructions in .context-alignment/alignment-global.md and fron
 ## Directory Structure (Level 1 only)
 ```
 /
-├── Maccy/
+├── Maccy/ — 582t + 198t (_index.md)
 ├── Designs/
 ├── docs/
 ├── Maccy/
@@ -41,16 +41,17 @@ Pay attention to instructions in .context-alignment/alignment-global.md and fron
 ├── MaccyUITests/
 ```
 ================================================================================
-`/CLAUDE.md (depth: 0)`
-<front_matter>
-title: "Maccy (fork)"
-tldr: "Custom fork of p0deje/Maccy — clipboard manager, base for AI-processing features."
-</front_matter>
-
-================================================================================
 `~/.claude/CLAUDE.md (global)`
 <front_matter>
 [NO FILE]
+</front_matter>
+
+================================================================================
+
+`/CLAUDE.md (depth: 1)`
+<front_matter>
+title: "Maccy (fork)"
+tldr: "Custom fork of p0deje/Maccy — clipboard manager, base for AI-processing features."
 </front_matter>
 
 ================================================================================

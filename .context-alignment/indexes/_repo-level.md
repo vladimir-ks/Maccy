@@ -1,10 +1,10 @@
 ---
 section: indexes
 scope: _repo-level
-generated: 2026-07-02T16:41:19+03:00
+generated: 2026-07-02T16:54:28+03:00
 scanned_from: /Users/vmks/_IT_Projects/_dev_tools/Maccy
 branch: context-align/260702
-commit: 37726d0
+commit: 7c6d78b
 ---
 
 ## Context Alignment
@@ -32,7 +32,7 @@ Pay attention to instructions in .context-alignment/alignment-global.md and inde
 ## Directory Structure (Level 1 only)
 ```
 /
-├── Maccy/
+├── Maccy/ — 582t + 198t (_index.md)
 ├── Designs/
 ├── docs/
 ├── Maccy/
@@ -41,8 +41,10 @@ Pay attention to instructions in .context-alignment/alignment-global.md and inde
 ├── MaccyUITests/
 ```
 ================================================================================
-`/_index.md (depth: 0)`
+`/_index.md (depth: 1)`
 <index>
+# Repository Index
+
 | Path | Purpose — extension point for custom features |
 |---|---|
 | `Maccy/Clipboard.swift` | Pasteboard read/write. `copyInMaccy(_:)` writes a string back to the system clipboard — use to return AI output |
@@ -54,6 +56,7 @@ Pay attention to instructions in .context-alignment/alignment-global.md and inde
 </index>
 
 ================================================================================
+
 `/.context-alignment/_index.md (depth: 2)`
 <index>
 # Repository Structure

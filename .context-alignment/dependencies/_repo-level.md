@@ -1,10 +1,10 @@
 ---
 section: dependencies
 scope: _repo-level
-generated: 2026-07-02T16:41:19+03:00
+generated: 2026-07-02T16:54:28+03:00
 scanned_from: /Users/vmks/_IT_Projects/_dev_tools/Maccy
 branch: context-align/260702
-commit: 37726d0
+commit: 7c6d78b
 ---
 
 ## Context Alignment
@@ -32,7 +32,7 @@ Pay attention to instructions in .context-alignment/alignment-global.md and depe
 ## Directory Structure (Level 1 only)
 ```
 /
-├── Maccy/
+├── Maccy/ — 582t + 198t (_index.md)
 ├── Designs/
 ├── docs/
 ├── Maccy/
@@ -41,15 +41,16 @@ Pay attention to instructions in .context-alignment/alignment-global.md and depe
 ├── MaccyUITests/
 ```
 ================================================================================
-`/CLAUDE.md (depth: 0)`
-<dependencies>
-SPM only: Defaults, KeyboardShortcuts, Sauce, Settings, Sparkle, SwiftHEXColors, fuse-swift, swift-log. Resolve via `xcodebuild -resolvePackageDependencies` or Xcode "Resolve Package Versions".
-</dependencies>
-
-================================================================================
 `~/.claude/CLAUDE.md (global)`
 <dependencies>
 [NO FILE]
+</dependencies>
+
+================================================================================
+
+`/CLAUDE.md (depth: 1)`
+<dependencies>
+SPM only: Defaults, KeyboardShortcuts, Sauce, Settings, Sparkle, SwiftHEXColors, fuse-swift, swift-log. Resolve via `xcodebuild -resolvePackageDependencies` or Xcode "Resolve Package Versions".
 </dependencies>
 
 ================================================================================

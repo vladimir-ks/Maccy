@@ -1,11 +1,11 @@
 SCAN COMPLETE ✓
-Duration: 48s
-Items: 0/0 processed
+Duration: 50s
+Items: 1/1 processed
 
 Summary: Scan complete
 Performance:
-  Avg: 0s per item
-  Speed: 0.00 items/sec
+  Avg: 50.0s per item
+  Speed: 0.02 items/sec
 
 Errors: 0
 

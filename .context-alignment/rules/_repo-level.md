@@ -1,10 +1,10 @@
 ---
 section: rules
 scope: _repo-level
-generated: 2026-07-02T16:41:19+03:00
+generated: 2026-07-02T16:54:28+03:00
 scanned_from: /Users/vmks/_IT_Projects/_dev_tools/Maccy
 branch: context-align/260702
-commit: 37726d0
+commit: 7c6d78b
 ---
 
 ## Context Alignment
@@ -32,7 +32,7 @@ Pay attention to instructions in .context-alignment/alignment-global.md and rule
 ## Directory Structure (Level 1 only)
 ```
 /
-├── Maccy/
+├── Maccy/ — 582t + 198t (_index.md)
 ├── Designs/
 ├── docs/
 ├── Maccy/
@@ -41,20 +41,21 @@ Pay attention to instructions in .context-alignment/alignment-global.md and rule
 ├── MaccyUITests/
 ```
 ================================================================================
-`/CLAUDE.md (depth: 0)`
+`~/.claude/CLAUDE.md (global)`
+<rules>
+[NO FILE]
+</rules>
+
+================================================================================
+
+`/CLAUDE.md (depth: 1)`
 <rules>
 1. Remotes: `origin` = own fork (vladimir-ks/Maccy), `upstream` = p0deje/Maccy.
 2. Branches: `master` tracks `upstream/master` — never commit here. `mine` = integration branch for all custom work, tracks `origin/mine`. Feature work branches off `mine`.
 3. Sync upstream: `git fetch upstream && git checkout master && git merge --ff-only upstream/master && git push origin master`, then rebase/merge `master` into `mine`.
 4. Isolate custom code: prefer NEW files (e.g. `Maccy/AI/*.swift`) over editing upstream files. Where an upstream file must change (hotkey registry, footer button, entitlements), keep the diff minimal and mark it `// CUSTOM:` — keeps rebase conflicts small and easy to resolve.
-5. Never edit this repo's CLAUDE.md directly — edit `.context-alignment/{section}/_repo-level.md`, then `align push`. Root-scope entries need a manually-added `` `/CLAUDE.md (depth: 0)` `` header block (scan omits it on repos with no prior CLAUDE.md — known tool quirk).
+5. Registry (`.context-alignment/`) exists for future multi-scope growth but is NOT the write path today — this repo is single-scope, so `align push` (v2.7.7) has a reproducible bug wiping other tags when pushing a 2nd+ new tag into a fresh root CLAUDE.md within one run. Edit this file directly; run `align scan` afterward to keep the registry in sync for reference.
 6. In-app network calls (e.g. calling an AI API directly from Swift) require adding `com.apple.security.network.client` to `Maccy/Maccy.entitlements` first — App Sandbox blocks it by default.
-</rules>
-
-================================================================================
-`~/.claude/CLAUDE.md (global)`
-<rules>
-[NO FILE]
 </rules>
 
 ================================================================================
@@ -106,7 +107,6 @@ This directory extracts context from CLAUDE.md files into 6 sections:
 - `<technology>` → `technology/*.md`
 - `<references>` → `references/*.md`
 - `<index>` → `indexes/*.md`
-- `<rules>` → `rules/*.md`
 - `<unstructured>` → `unstructured/*.md`
 
 **System Tags** (auto-managed, embedded by `align scan`):

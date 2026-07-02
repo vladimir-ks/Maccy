@@ -1,10 +1,10 @@
 ---
 section: roles
 scope: _repo-level
-generated: 2026-07-02T16:41:19+03:00
+generated: 2026-07-02T16:54:28+03:00
 scanned_from: /Users/vmks/_IT_Projects/_dev_tools/Maccy
 branch: context-align/260702
-commit: 37726d0
+commit: 7c6d78b
 ---
 
 ## Context Alignment
@@ -32,7 +32,7 @@ Pay attention to instructions in .context-alignment/alignment-global.md and role
 ## Directory Structure (Level 1 only)
 ```
 /
-├── Maccy/
+├── Maccy/ — 582t + 198t (_index.md)
 ├── Designs/
 ├── docs/
 ├── Maccy/
@@ -41,15 +41,16 @@ Pay attention to instructions in .context-alignment/alignment-global.md and role
 ├── MaccyUITests/
 ```
 ================================================================================
-`/CLAUDE.md (depth: 0)`
-<role>
-Act as Maccy fork maintainer. Objective: extend Maccy (macOS clipboard manager, Swift/AppKit+SwiftUI) with custom features — starting with clipboard-item-to-AI processing — while keeping the fork cleanly rebaseable against upstream.
-</role>
-
-================================================================================
 `~/.claude/CLAUDE.md (global)`
 <role>
 [NO FILE]
+</role>
+
+================================================================================
+
+`/CLAUDE.md (depth: 1)`
+<role>
+Act as Maccy fork maintainer. Objective: extend Maccy (macOS clipboard manager, Swift/AppKit+SwiftUI) with custom features — starting with clipboard-item-to-AI processing — while keeping the fork cleanly rebaseable against upstream.
 </role>
 
 ================================================================================
